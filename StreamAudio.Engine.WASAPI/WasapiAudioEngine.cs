@@ -29,8 +29,10 @@ public sealed class WasapiAudioEngine : IAudioEngine
         return direction switch
         {
             AudioDirection.Unknown => throw new InvalidOperationException(),
-            AudioDirection.Input => _inputDevices.Values.Select(Map),
-            AudioDirection.Output => _outputDevices.Values.Select(Map),
+            AudioDirection.Input => _inputDevices.Values
+                .Concat(_outputDevices.Values)
+                .Select(x => Map(x, true)),
+            AudioDirection.Output => _outputDevices.Values.Select(x => Map(x, false)),
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
@@ -57,7 +59,7 @@ public sealed class WasapiAudioEngine : IAudioEngine
         return new StreamWrapper(capture, output, provider);
     }
 
-    private static AudioDevice Map(MMDevice device)
+    private static AudioDevice Map(MMDevice device, bool overrideName)
     {
         return new AudioDevice
         {
@@ -69,7 +71,9 @@ public sealed class WasapiAudioEngine : IAudioEngine
                 DataFlow.All => AudioDirection.Unknown,
                 _ => throw new ArgumentOutOfRangeException()
             },
-            Name = device.DataFlow == DataFlow.Capture ? device.FriendlyName : $"{device.FriendlyName} (loopback)",
+            Name = (device.DataFlow == DataFlow.Capture || !overrideName)
+                ? device.FriendlyName
+                : $"{device.FriendlyName} (loopback)",
         };
     }
 

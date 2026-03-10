@@ -17,21 +17,18 @@ using var stream = engine.StartStreaming(input.Id, output.Id);
 
 stream.Volume = volume / 100f;
 
-await AnsiConsole.Status().StartAsync("Streaming...", async _ => { await Task.Delay(Timeout.Infinite); });
+Console.Title = $"{input.Name} -> {output.Name}";
+
+await AnsiConsole.Status().StartAsync($"Streaming [bold]{input.Name}[/] --> [bold]{output.Name}[/]...", async _ => { await Task.Delay(Timeout.Infinite); });
 
 return;
 
 [Pure]
 static AudioDevice GetInputDevice(IAudioEngine engine)
 {
-    var input = engine.GetDevices(AudioDirection.Input);
-    var output = engine.GetDevices(AudioDirection.Output);
-
-    var all = input.Concat(output).ToArray();
-
     var prompt = new SelectionPrompt<AudioDevice>()
         .Title("Select [bold]input[/] device:")
-        .AddChoices(all)
+        .AddChoices(engine.GetDevices(AudioDirection.Input))
         .UseConverter(device => device.Name);
 
     return AnsiConsole.Prompt(prompt);
@@ -39,11 +36,9 @@ static AudioDevice GetInputDevice(IAudioEngine engine)
 
 static AudioDevice GetOutputDevice(IAudioEngine engine)
 {
-    var output = engine.GetDevices(AudioDirection.Output).ToArray();
-
     var prompt = new SelectionPrompt<AudioDevice>()
         .Title("Select [bold]output[/] device:")
-        .AddChoices(output)
+        .AddChoices(engine.GetDevices(AudioDirection.Output))
         .UseConverter(device => device.Name);
 
     return AnsiConsole.Prompt(prompt);
@@ -53,7 +48,7 @@ static float GetVolume()
 {
     var prompt = new TextPrompt<float>("Enter volume:")
         .HideChoices()
-        .Validate(f => f is >= 0 and <= 10)
+        .Validate(f => f is >= 0 and <= 1000)
         .DefaultValue(100);
 
     return AnsiConsole.Prompt(prompt);
