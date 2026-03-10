@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="NAudio" Version="2.2.1" />
+      <ProjectReference Include="..\StreamAudio.Core\StreamAudio.Core.csproj" />
+      <ProjectReference Include="..\StreamAudio.Engine.WASAPI\StreamAudio.Engine.WASAPI.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\StreamAudio.Core\StreamAudio.Core.csproj" />
-      <ProjectReference Include="..\StreamAudio.Engine.WASAPI\StreamAudio.Engine.WASAPI.csproj" />
+      <PackageReference Include="Spectre.Console.Cli" Version="0.53.1" />
     </ItemGroup>
 
 </Project>
